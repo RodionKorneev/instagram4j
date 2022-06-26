@@ -13,14 +13,24 @@ import com.github.instagram4j.instagram4j.responses.IGResponse;
 import com.github.instagram4j.instagram4j.utils.IGUtils;
 
 import kotlin.Pair;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
+@Getter
+@Setter
 @Slf4j
 public abstract class IGRequest<T extends IGResponse> {
+    private boolean keepAlive = false;
+
+    public IGRequest<T> keepAlive(){
+        this.keepAlive = true;
+        return this;
+    }
 
     public abstract String path();
 
@@ -87,7 +97,7 @@ public abstract class IGRequest<T extends IGResponse> {
     }
 
     protected Request.Builder applyHeaders(IGClient client, Request.Builder req) {
-        req.addHeader("Connection", "close");
+        req.addHeader("Connection", keepAlive? "keep-alive" : "close");
         req.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         req.addHeader("Accept-Language", "en-US");
         req.addHeader("X-IG-Capabilities", client.getDevice().getCapabilities());
